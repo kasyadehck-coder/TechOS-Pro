@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}— Dashboard{% endblock %}
+{% block page_title %}📊 Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="grid-4 mb-3">
+  <div class="stat" style="--sc:var(--accent)">
+    <div class="stat-val text-accent">{{n_cli}}</div>
+    <div class="stat-lbl">👥 Clientes</div>
+  </div>
+  <div class="stat" style="--sc:var(--orange)">
+    <div class="stat-val" style="color:var(--orange)">{{n_os}}</div>
+    <div class="stat-lbl">🔧 OS Abertas</div>
+  </div>
+  <div class="stat" style="--sc:var(--yellow)">
+    <div class="stat-val" style="color:var(--yellow)">{{n_enc}}</div>
+    <div class="stat-lbl">📦 Encomendas</div>
+  </div>
+  <div class="stat" style="--sc:var(--green)">
+    <div class="stat-val text-green">{{receita}}</div>
+    <div class="stat-lbl">💰 Receita Total</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Últimas OS -->
+  <div class="card">
+    <div class="card-title">🔧 Últimas Ordens de Serviço
+      <a href="/os/nova" class="btn btn-primary btn-sm" style="margin-left:auto">+ Nova OS</a>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Aparelho</th><th>Cliente</th><th>Status</th><th>Valor</th></tr></thead>
+        <tbody>
+          {% for o in ultimas_os %}
+          <tr>
+            <td class="text-muted">{{o.numero or o.id}}</td>
+            <td><a href="/os/itens/{{o.id}}" style="color:var(--text)">{{o.aparelho or '—'}}</a></td>
+            <td class="text-muted">{{o.cli_nome or o.cliente or '—'}}</td>
+            <td>
+              {% set s = o.status %}
+              {% if s=='Pronto' %}<span class="badge badge-green">{{s}}</span>
+              {% elif s=='Em Andamento' %}<span class="badge badge-blue">{{s}}</span>
+              {% elif s=='Aguardando' %}<span class="badge badge-yellow">{{s}}</span>
+              {% elif s=='Entregue' %}<span class="badge badge-gray">{{s}}</span>
+              {% else %}<span class="badge badge-red">{{s}}</span>{% endif %}
+            </td>
+            <td class="text-green">{{fmtR(o.total)}}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">Nenhuma OS ainda</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px"><a href="/os" class="btn btn-secondary btn-sm">Ver todas →</a></div>
+  </div>
+
+  <!-- Alertas de estoque + receita mensal -->
+  <div>
+    {% if n_crit > 0 %}
+    <div class="card" style="border-color:rgba(255,61,90,.3)">
+      <div class="card-title" style="color:var(--red)">⚠️ Estoque Crítico ({{n_crit}} itens)</div>
+      {% for e in est_crit[:5] %}
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span>{{e.descricao}}</span>
+        <span class="badge badge-red">{{e.qtd|int}} un.</span>
+      </div>
+      {% endfor %}
+      {% for a in acess_crit[:3] %}
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span>📱 {{a.tipo}} {{a.marca_aparelho}} {{a.modelo_aparelho}}</span>
+        <span class="badge badge-orange">{{a.qtd|int}} un.</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-title">📈 Receita Mensal</div>
+      {% if receita_mensal %}
+        {% for r in receita_mensal %}
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span>{{r.mes}}</span><span class="text-green">{{fmtR(r.total)}}</span>
+          </div>
+          <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden">
+            <div style="height:100%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:3px;width:{% set mx = receita_mensal|max(attribute='total') %}{% if mx.total > 0 %}{{(r.total/mx.total*100)|int}}{% else %}0{% endif %}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="font-size:12px;color:var(--text3)">Nenhum dado financeiro ainda.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ Ações Rápidas</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <a href="/os/nova" class="btn btn-secondary">🔧 Nova OS</a>
+        <a href="/pdv" class="btn btn-secondary">🛒 Abrir PDV</a>
+        <a href="/clientes/novo" class="btn btn-secondary">👤 Novo Cliente</a>
+        <a href="/encomendas/nova" class="btn btn-secondary">📦 Encomenda</a>
+        <a href="/acessorios/novo" class="btn btn-secondary">📱 Acessório</a>
+        <a href="/estoque/novo" class="btn btn-secondary">🗄️ Estoque</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}— Categorias{% endblock %}
+{% block page_title %}🏷️ Categorias de Produto{% endblock %}
+{% block content %}
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">🏷️ Categorias cadastradas</div>
+    {% for c in categorias %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(37,45,56,.4);font-size:13px">
+      <div>
+        <strong>{{c.nome}}</strong>
+        <span class="badge badge-gray" style="margin-left:8px">{{c.tipo}}</span>
+      </div>
+      <form method="post" action="/categorias/excluir/{{c.id}}" onsubmit="return confirm('Excluir categoria?')">
+        <button class="btn btn-danger btn-xs">🗑️</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="text-muted" style="font-size:12px">Nenhuma categoria customizada ainda.</p>
+    {% endfor %}
+  </div>
+  <div class="card">
+    <div class="card-title">➕ Nova Categoria</div>
+    <form method="post" action="/categorias/nova">
+      <div class="fg mb-2"><label>Nome da categoria *</label><input class="fc" name="nome" required placeholder="Ex: Sub-placas iPhone, Câmeras..."></div>
+      <div class="fg mb-3"><label>Tipo</label>
+        <select class="fc" name="tipo">
+          <option value="produto">Produto / Peça</option>
+          <option value="servico">Serviço</option>
+          <option value="acessorio">Acessório</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">+ Criar Categoria</button>
+    </form>
+    <div class="divider"></div>
+    <div class="card-title" style="font-size:12px">Categorias padrão do sistema:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      {% for c in ['Peças','Placas','Sub-placas','Acessórios','Celulares','Informática','Serviços','Outros'] %}
+      <span class="badge badge-gray">{{c}}</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

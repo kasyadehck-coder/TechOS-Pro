@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⚡ Assinar — TechOS Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'JetBrains Mono',monospace;background:#0a0c0f;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:#e8edf5}
+.card{background:#181d24;border:1px solid #252d38;border-radius:20px;padding:36px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.logo{text-align:center;margin-bottom:24px}
+.logo h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#00d4ff}
+.logo p{font-size:12px;color:#4a5568;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.trial-badge{background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;text-align:center;font-size:13px;color:#ff8c00;font-weight:600}
+.preco{text-align:center;margin-bottom:24px}
+.preco .valor{font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:#00e676}
+.preco .periodo{font-size:13px;color:#4a5568;margin-top:4px}
+.beneficios{margin-bottom:24px}
+.beneficio{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(37,45,56,.6);font-size:13px;color:#8a97a8}
+.beneficio:last-child{border-bottom:none}
+.beneficio .ico{font-size:16px;width:24px;text-align:center;flex-shrink:0}
+.btn-pix{width:100%;background:#00d4ff;color:#000;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:.15s;letter-spacing:.5px}
+.btn-pix:hover{background:#0099cc;transform:translateY(-1px)}
+.btn-pix:disabled{background:#2e3a48;color:#4a5568;cursor:not-allowed;transform:none}
+.qr-area{display:none;text-align:center;margin-top:20px}
+.qr-area.show{display:block}
+.qr-area img{width:200px;height:200px;border:3px solid #00d4ff;border-radius:12px;margin:12px auto;display:block;background:#fff;padding:8px}
+.pix-copia{background:#0f1215;border:1px solid #252d38;border-radius:8px;padding:10px 14px;font-size:10px;font-family:monospace;word-break:break-all;margin:10px 0;color:#00d4ff;max-height:80px;overflow:auto;cursor:pointer}
+.btn-copiar{background:rgba(0,230,118,.1);color:#00e676;border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-bottom:8px;font-family:'JetBrains Mono',monospace;transition:.15s}
+.btn-copiar:hover{background:rgba(0,230,118,.2)}
+.status-pag{text-align:center;padding:10px;font-size:12px;color:#4a5568}
+.status-pag.aprovado{color:#00e676;font-weight:700;font-size:14px}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid #252d38;border-top-color:#00d4ff;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{margin-top:20px;font-size:11px;color:#4a5568;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <h1>⚡ TechOS Pro</h1>
+    <p>Sistema de Gestão para Lojas de Celular</p>
+  </div>
+
+  <div class="trial-badge">
+    ⏱️ Seu período de teste encerrou, <strong>{{ empresa_nome }}</strong>!<br>
+    Assine agora para continuar usando.
+  </div>
+
+  <div class="preco">
+    <div class="valor">{{ preco }}</div>
+    <div class="periodo">por mês — cancele quando quiser</div>
+  </div>
+
+  <div class="beneficios">
+    <div class="beneficio"><span class="ico">🔧</span> Ordens de Serviço com impressão térmica</div>
+    <div class="beneficio"><span class="ico">📱</span> Películas, Capinhas e Acessórios</div>
+    <div class="beneficio"><span class="ico">🛒</span> PDV com Pix, Crédito, Débito e Dinheiro</div>
+    <div class="beneficio"><span class="ico">📦</span> Encomendas com pagamento parcial</div>
+    <div class="beneficio"><span class="ico">📊</span> Relatórios e Financeiro completo</div>
+    <div class="beneficio"><span class="ico">☁️</span> Dados na nuvem — acesse de qualquer lugar</div>
+    <div class="beneficio"><span class="ico">💬</span> Suporte via WhatsApp — Orange Tech Solutions</div>
+  </div>
+
+  <button class="btn-pix" id="btn-gerar" onclick="gerarPix()">
+    📱 Gerar QR Code PIX
+  </button>
+
+  <div class="qr-area" id="qr-area">
+    <p style="font-size:12px;color:#4a5568;margin-bottom:8px">Escaneie com o app do seu banco:</p>
+    <img id="qr-img" src="" alt="QR Code PIX">
+    <div class="pix-copia" id="pix-codigo" onclick="copiarPix()" title="Clique para copiar"></div>
+    <button class="btn-copiar" onclick="copiarPix()">📋 Copiar código PIX Copia e Cola</button>
+    <div class="status-pag" id="status-pag">
+      <span class="spinner"></span> Aguardando pagamento...
+    </div>
+  </div>
+</div>
+
+<footer>⚡ TechOS Pro • Criado com ❤️ por Robinho • Orange Tech Solutions</footer>
+
+<script>
+let paymentId = null, checkInterval = null;
+
+async function gerarPix(){
+  const btn = document.getElementById('btn-gerar');
+  btn.disabled = true; btn.textContent = '⏳ Gerando PIX...';
+  try{
+    const resp = await fetch('/gerar_pix',{method:'POST',headers:{'Content-Type':'application/json'}});
+    const data = await resp.json();
+    if(data.erro){alert('Erro: '+data.erro);btn.disabled=false;btn.textContent='📱 Gerar QR Code PIX';return;}
+    paymentId = data.payment_id;
+    document.getElementById('qr-img').src = 'data:image/png;base64,'+data.qr_code_base64;
+    document.getElementById('pix-codigo').textContent = data.qr_code;
+    document.getElementById('qr-area').classList.add('show');
+    btn.textContent = '✅ QR Code gerado!';
+    checkInterval = setInterval(verificarPagamento, 5000);
+  }catch(e){
+    alert('Erro de conexão. Tente novamente.');
+    btn.disabled=false; btn.textContent='📱 Gerar QR Code PIX';
+  }
+}
+
+async function verificarPagamento(){
+  if(!paymentId) return;
+  try{
+    const r = await fetch('/verificar_pagamento/'+paymentId);
+    const d = await r.json();
+    if(d.status==='aprovado'){
+      clearInterval(checkInterval);
+      document.getElementById('status-pag').className='status-pag aprovado';
+      document.getElementById('status-pag').innerHTML='🎉 Pagamento aprovado! Redirecionando...';
+      setTimeout(()=>{window.location.href='/painel';},2000);
+    }
+  }catch(e){}
+}
+
+function copiarPix(){
+  const t = document.getElementById('pix-codigo').textContent;
+  navigator.clipboard.writeText(t).then(()=>{
+    const b = document.querySelector('.btn-copiar');
+    b.textContent='✅ Copiado!';
+    setTimeout(()=>{b.textContent='📋 Copiar código PIX Copia e Cola';},2500);
+  });
+}
+</script>
+</body>
+</html>

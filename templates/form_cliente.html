@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}— {{titulo}}{% endblock %}
+{% block page_title %}👤 {{titulo}}{% endblock %}
+{% block content %}
+<div style="max-width:700px">
+  <div class="card">
+    <div class="card-title">{{titulo}}</div>
+    <form method="post">
+      <div class="form-grid">
+        <div class="fg"><label>Nome completo *</label><input class="fc" name="nome" value="{{cliente.nome if cliente else ''}}" required placeholder="João da Silva"></div>
+        <div class="fg"><label>Tipo</label>
+          <select class="fc" name="tipo">
+            <option {{'selected' if not cliente or cliente.tipo=='Pessoa Física'}}>Pessoa Física</option>
+            <option {{'selected' if cliente and cliente.tipo=='Pessoa Jurídica'}}>Pessoa Jurídica</option>
+          </select>
+        </div>
+        <div class="fg"><label>Telefone</label><input class="fc" name="telefone" value="{{cliente.telefone if cliente else ''}}" placeholder="(41) 3333-4444"></div>
+        <div class="fg"><label>WhatsApp</label><input class="fc" name="whatsapp" value="{{cliente.whatsapp if cliente else ''}}" placeholder="(41) 99999-9999"></div>
+        <div class="fg"><label>Email</label><input class="fc" name="email" type="email" value="{{cliente.email if cliente else ''}}" placeholder="email@exemplo.com"></div>
+        <div class="fg"><label>CPF / CNPJ</label><input class="fc" name="cpfcnpj" value="{{cliente.cpfcnpj if cliente else ''}}" placeholder="000.000.000-00"></div>
+        <div class="fg"><label>Endereço</label><input class="fc" name="endereco" value="{{cliente.endereco if cliente else ''}}" placeholder="Rua, número"></div>
+        <div class="fg"><label>Cidade</label><input class="fc" name="cidade" value="{{cliente.cidade if cliente else ''}}" placeholder="Curitiba"></div>
+        <div class="fg"><label>UF</label><input class="fc" name="uf" value="{{cliente.uf if cliente else ''}}" placeholder="PR" maxlength="2" style="text-transform:uppercase"></div>
+      </div>
+      <div class="fg mt-3"><label>Observações</label><textarea class="fc" name="obs" placeholder="Notas sobre o cliente...">{{cliente.obs if cliente else ''}}</textarea></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary">💾 Salvar</button>
+        <a href="/clientes" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

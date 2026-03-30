@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}— Vendas{% endblock %}
+{% block page_title %}💳 Vendas Realizadas{% endblock %}
+{% block topbar_actions %}<a href="/pdv" class="btn btn-primary btn-sm">🛒 Abrir PDV</a>{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Data</th><th>Cliente</th><th>Total</th><th>Desconto</th><th>Pagamento</th><th>Parcelas</th><th>Cupom</th></tr></thead>
+      <tbody>
+        {% for v in vendas %}
+        <tr>
+          <td class="text-muted">{{v.id}}</td>
+          <td>{{v.criado_em.strftime('%d/%m/%Y') if v.criado_em else '—'}}</td>
+          <td>{{v.cli_nome or v.cliente or 'Avulso'}}</td>
+          <td class="text-green"><strong>{{fmtR(v.total)}}</strong></td>
+          <td class="text-red">{% if v.desconto and v.desconto > 0 %}-{{fmtR(v.desconto)}}{% else %}—{% endif %}</td>
+          <td>{{v.pagto or '—'}}</td>
+          <td>{{v.parcelas or 1}}x</td>
+          <td><a href="/vendas/cupom/{{v.id}}" target="_blank" class="btn btn-secondary btn-xs">🖨️ Imprimir</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text3)">Nenhuma venda registrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

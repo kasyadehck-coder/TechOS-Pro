@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}— Estoque{% endblock %}
+{% block page_title %}🗄️ Estoque / Peças{% endblock %}
+{% block topbar_actions %}<a href="/estoque/novo" class="btn btn-primary btn-sm">+ Novo Item</a>{% endblock %}
+{% block content %}
+<div class="card mb-3">
+  <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+    <div class="search-bar" style="flex:1;max-width:280px">
+      <span style="color:var(--text3)">🔍</span>
+      <input type="text" name="q" value="{{q}}" placeholder="Buscar produto...">
+    </div>
+    <div class="fg" style="min-width:160px">
+      <label>Categoria</label>
+      <select class="fc" name="cat">
+        <option value="">Todas</option>
+        {% for c in cats %}<option value="{{c}}" {{'selected' if cat==c}}>{{c}}</option>{% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-secondary" type="submit">Filtrar</button>
+    <a href="/estoque" class="btn btn-secondary">✕</a>
+  </form>
+</div>
+<div class="card">
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th>Mín.</th><th>Custo</th><th>Venda</th><th>Margem</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody>
+        {% for p in pecas %}
+        {% set st = stock_status(p.qtd, p.qtd_min) %}
+        {% set margem = ((p.preco_venda - p.custo) / p.custo * 100)|round(1) if p.custo and p.custo > 0 else 0 %}
+        <tr>
+          <td class="text-muted">{{p.codigo or '—'}}</td>
+          <td><strong>{{p.descricao}}</strong>{% if p.fornecedor %}<br><span style="font-size:10px;color:var(--text3)">{{p.fornecedor}}</span>{% endif %}</td>
+          <td><span class="badge badge-gray">{{p.categoria or '—'}}</span></td>
+          <td style="font-weight:700;color:{% if st in ['Sem Estoque','Crítico'] %}var(--red){% elif st=='Baixo' %}var(--orange){% else %}var(--text){% endif %}">{{p.qtd|int}}</td>
+          <td class="text-muted">{{p.qtd_min|int}}</td>
+          <td class="text-muted">{{fmtR(p.custo)}}</td>
+          <td class="text-green"><strong>{{fmtR(p.preco_venda)}}</strong></td>
+          <td class="text-accent">{% if margem %}{{margem}}%{% else %}—{% endif %}</td>
+          <td>
+            {% if st=='OK' %}<span class="badge badge-green">OK</span>
+            {% elif st=='Baixo' %}<span class="badge badge-yellow">Baixo</span>
+            {% elif st=='Crítico' %}<span class="badge badge-red">Crítico</span>
+            {% else %}<span class="badge badge-red">Sem Estoque</span>{% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <form method="post" action="/estoque/entrada/{{p.id}}" style="display:flex;gap:4px">
+                <input type="number" name="qtd" value="1" min="1" class="fc" style="width:46px;padding:4px 6px">
+                <button class="btn btn-green btn-xs">+Qtd</button>
+              </form>
+              <a href="/estoque/editar/{{p.id}}" class="btn btn-secondary btn-xs">✏️</a>
+              <form method="post" action="/estoque/excluir/{{p.id}}" onsubmit="return confirm('Excluir?')">
+                <button class="btn btn-danger btn-xs">🗑️</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10" style="text-align:center;padding:30px;color:var(--text3)">Nenhum item no estoque.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}— {{titulo}}{% endblock %}
+{% block page_title %}📦 {{titulo}}{% endblock %}
+{% block content %}
+<div style="max-width:700px">
+  <div class="card">
+    <div class="card-title">{{titulo}}</div>
+    <form method="post">
+      <div class="form-grid">
+        <div class="fg">
+          <label>Cliente</label>
+          <select class="fc" name="cliente_id" onchange="document.getElementById('cli-n').value=this.options[this.selectedIndex].text">
+            <option value="">-- Selecionar --</option>
+            {% for c in clientes %}<option value="{{c.id}}" {{'selected' if enc and enc.cliente_id==c.id}}>{{c.nome}}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Ou nome avulso</label><input class="fc" id="cli-n" name="cliente" value="{{enc.cliente if enc else ''}}" placeholder="Nome do cliente"></div>
+        <div class="fg" style="grid-column:1/-1"><label>Produto / Descrição *</label><input class="fc" name="produto" value="{{enc.produto if enc else ''}}" required placeholder="MacBook Pro M3, Notebook Dell i5..."></div>
+        <div class="fg"><label>Valor total (R$)</label><input class="fc" name="total" type="number" step="0.01" value="{{enc.total if enc else ''}}" placeholder="0,00"></div>
+        <div class="fg"><label>Entrada paga (R$)</label><input class="fc" name="entrada" type="number" step="0.01" value="{{enc.entrada if enc else '0'}}" placeholder="0,00"></div>
+        <div class="fg"><label>Forma pgto — entrada</label>
+          <select class="fc" name="fpgto_entrada">
+            {% for p in ['Dinheiro','Pix','Cartão Crédito','Cartão Débito','Transferência'] %}
+            <option {{'selected' if enc and enc.fpgto_entrada==p}}>{{p}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Forma pgto — saldo</label>
+          <select class="fc" name="fpgto_saldo">
+            {% for p in ['A definir','Dinheiro','Pix','Cartão Crédito','Cartão Débito','Transferência'] %}
+            <option {{'selected' if enc and enc.fpgto_saldo==p}}>{{p}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Previsão de chegada</label><input class="fc" name="data_prazo" type="date" value="{{enc.data_prazo.isoformat() if enc and enc.data_prazo else ''}}"></div>
+        <div class="fg"><label>Status</label>
+          <select class="fc" name="status">
+            {% set opts = [('aguardando','Aguardando'),('pedido','Pedido Feito'),('transito','Em Trânsito'),('chegou','Chegou'),('entregue','Entregue')] %}
+            {% for v,l in opts %}<option value="{{v}}" {{'selected' if enc and enc.status==v}}>{{l}}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="fg mt-3"><label>Observações (link, cor, fornecedor...)</label><textarea class="fc" name="obs" placeholder="Link do produto, fornecedor, especificações...">{{enc.obs if enc else ''}}</textarea></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary">💾 Salvar</button>
+        <a href="/encomendas" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
