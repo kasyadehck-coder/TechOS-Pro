@@ -1,0 +1,164 @@
+<!-- ============================================================
+  ARQUIVO: templates/imprimir_os.html
+  Impressão térmica 80mm / 50mm — Ordem de Serviço
+============================================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>OS #{{os.numero}} — Imprimir</title>
+<style>
+@media print{
+  .no-print{display:none!important}
+  body{margin:0}
+}
+:root{
+  --w: {% if largura=='50mm' %}50mm{% else %}80mm{% endif %};
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',Courier,monospace;font-size:{% if largura=='50mm' %}8px{% else %}10px{% endif %};width:var(--w);max-width:var(--w);padding:4px;background:#fff;color:#000}
+.center{text-align:center}
+.bold{font-weight:700}
+.line{border-top:1px dashed #555;margin:5px 0}
+.double-line{border-top:2px solid #000;margin:5px 0}
+h1{font-size:{% if largura=='50mm' %}11px{% else %}14px{% endif %};font-weight:900;text-align:center;margin:4px 0}
+h2{font-size:{% if largura=='50mm' %}9px{% else %}11px{% endif %};text-align:center;margin:2px 0}
+.row{display:flex;justify-content:space-between;margin:2px 0}
+.label{color:#555}
+table{width:100%;border-collapse:collapse}
+th{font-size:{% if largura=='50mm' %}7px{% else %}9px{% endif %};border-bottom:1px solid #000;padding:1px 2px;text-align:left}
+td{padding:1px 2px;font-size:{% if largura=='50mm' %}7px{% else %}9px{% endif %};vertical-align:top}
+.total-row td{font-weight:700;border-top:1px dashed #555;padding-top:3px}
+.assinatura{margin-top:14px;border-top:1px solid #000;padding-top:4px;font-size:8px;text-align:center}
+.barcode-area{text-align:center;margin:6px 0;font-size:7px}
+/* BOTÕES TELA */
+.print-btns{position:fixed;top:10px;right:10px;display:flex;flex-direction:column;gap:8px;z-index:999}
+.print-btns button,.print-btns a{font-family:monospace;font-size:11px;padding:8px 14px;border-radius:6px;border:none;cursor:pointer;display:block;text-align:center;text-decoration:none}
+.btn-print{background:#00d4ff;color:#000;font-weight:700}
+.btn-back{background:#1e2530;color:#e8edf5;border:1px solid #252d38}
+</style>
+</head>
+<body>
+
+<div class="no-print print-btns">
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir {{largura}}</button>
+  <a href="/os/imprimir/{{os.id}}?l=80mm" class="btn-back">80mm</a>
+  <a href="/os/imprimir/{{os.id}}?l=50mm" class="btn-back">50mm</a>
+  <a href="/os/itens/{{os.id}}" class="btn-back">← Voltar</a>
+</div>
+
+<!-- CABEÇALHO -->
+<div class="center">
+  <h1>{{empresa.loja_nome or empresa.nome or 'TechShop'}}</h1>
+  {% if empresa.loja_cnpj %}<div>CNPJ: {{empresa.loja_cnpj}}</div>{% endif %}
+  {% if empresa.loja_tel %}<div>Tel: {{empresa.loja_tel}}</div>{% endif %}
+  {% if empresa.loja_end %}<div>{{empresa.loja_end}}{% if empresa.loja_cidade %} — {{empresa.loja_cidade}}/{{empresa.loja_uf}}{% endif %}</div>{% endif %}
+</div>
+
+<div class="double-line"></div>
+
+<div class="center bold">ORDEM DE SERVIÇO</div>
+<div class="center" style="font-size:{% if largura=='50mm' %}18px{% else %}22px{% endif %};font-weight:900">OS #{{os.numero}}</div>
+
+<div class="line"></div>
+
+<div class="row"><span class="label">Data abertura:</span><span>{{os.data_abert.strftime('%d/%m/%Y') if os.data_abert else '—'}}</span></div>
+<div class="row"><span class="label">Prazo:</span><span>{{os.data_prazo.strftime('%d/%m/%Y') if os.data_prazo else '—'}}</span></div>
+<div class="row"><span class="label">Status:</span><span class="bold">{{os.status}}</span></div>
+
+<div class="line"></div>
+<div class="bold">CLIENTE / APARELHO</div>
+<div class="row"><span class="label">Cliente:</span><span class="bold">{{os.cliente or '—'}}</span></div>
+<div class="row"><span class="label">Aparelho:</span><span>{{os.aparelho or '—'}}</span></div>
+{% if os.imei %}<div class="row"><span class="label">IMEI:</span><span>{{os.imei}}</span></div>{% endif %}
+{% if os.senha_apar %}<div class="row"><span class="label">Senha:</span><span>{{os.senha_apar}}</span></div>{% endif %}
+{% if os.acessorios %}<div class="row"><span class="label">Acessórios:</span><span>{{os.acessorios}}</span></div>{% endif %}
+{% if os.defeito %}
+<div class="line"></div>
+<div class="bold">DEFEITO RELATADO:</div>
+<div>{{os.defeito}}</div>
+{% endif %}
+{% if os.laudo %}
+<div class="line"></div>
+<div class="bold">LAUDO TÉCNICO:</div>
+<div>{{os.laudo}}</div>
+{% endif %}
+{% if os.tecnico %}
+<div class="row" style="margin-top:4px"><span class="label">Técnico:</span><span>{{os.tecnico}}</span></div>
+{% endif %}
+
+{% if itens %}
+<div class="line"></div>
+<div class="bold">SERVIÇOS / PEÇAS</div>
+<table>
+  <thead>
+    <tr>
+      <th>Descrição</th>
+      <th>Qtd</th>
+      <th>Vl.Un</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in itens %}
+    <tr>
+      <td>{{i.descricao}}</td>
+      <td style="text-align:right">{{i.qtd|int}}</td>
+      <td style="text-align:right">{{fmtR(i.valor_unit)}}</td>
+      <td style="text-align:right" class="bold">{{fmtR(i.subtotal)}}</td>
+    </tr>
+    {% endfor %}
+    {% if os.desconto and os.desconto > 0 %}
+    <tr class="total-row">
+      <td colspan="3">Desconto</td>
+      <td style="text-align:right">-{{fmtR(os.desconto)}}</td>
+    </tr>
+    {% endif %}
+    <tr class="total-row">
+      <td colspan="3" class="bold">TOTAL</td>
+      <td style="text-align:right;font-size:1.3em" class="bold">{{fmtR(os.total - (os.desconto or 0))}}</td>
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+
+{% if os.pagto %}
+<div class="line"></div>
+<div class="row"><span class="label">Pagamento:</span><span>{{os.pagto}}</span></div>
+<div class="row"><span class="label">Situação:</span><span class="bold" style="color:{% if os.pago=='Sim' %}green{% else %}red{% endif %}">{{os.pago}}</span></div>
+{% endif %}
+
+{% if os.obs %}
+<div class="line"></div>
+<div class="bold">Observações:</div>
+<div>{{os.obs}}</div>
+{% endif %}
+
+<div class="line"></div>
+<div class="center" style="font-size:7px">PRAZO DE GARANTIA: 90 DIAS</div>
+<div class="center" style="font-size:7px">Não nos responsabilizamos por dados perdidos.</div>
+
+<div class="assinatura">
+  <div style="margin-bottom:20px"></div>
+  <div>________________________________</div>
+  <div>Assinatura do Cliente</div>
+  <div style="margin-top:10px">Recebi o aparelho em perfeitas condições.</div>
+</div>
+
+<div class="line"></div>
+<div class="center" style="font-size:7px;margin-top:4px">
+  Sistema TechOS Pro • Orange Tech Solutions
+</div>
+
+<script>
+// Auto print se vier parâmetro ?print=1
+if(window.location.search.includes('print=1')) window.print();
+</script>
+</body>
+</html>
+
+
+<!-- ============================================================
+  ARQUIVO: templates/cupom_venda.html
+  Cupom de venda — Impressora térmica 80mm / 50mm
+============================================================ -->
