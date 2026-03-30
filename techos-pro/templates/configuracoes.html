@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}— Configurações{% endblock %}
+{% block page_title %}⚙️ Configurações{% endblock %}
+{% block content %}
+<div class="grid-2">
+  <!-- Dados da loja -->
+  <div class="card">
+    <div class="card-title">🏪 Dados da Loja</div>
+    <form method="post">
+      <div class="fg mb-2"><label>Nome da Loja (cabeçalho dos cupons)</label><input class="fc" name="loja_nome" value="{{empresa.loja_nome or empresa.nome or ''}}" placeholder="TechShop Curitiba"></div>
+      <div class="fg mb-2"><label>CNPJ / CPF</label><input class="fc" name="loja_cnpj" value="{{empresa.loja_cnpj or ''}}" placeholder="00.000.000/0001-00"></div>
+      <div class="fg mb-2"><label>Telefone</label><input class="fc" name="loja_tel" value="{{empresa.loja_tel or ''}}" placeholder="(41) 99999-9999"></div>
+      <div class="fg mb-2"><label>Endereço</label><input class="fc" name="loja_end" value="{{empresa.loja_end or ''}}" placeholder="Rua das Flores, 123"></div>
+      <div class="fg mb-2"><label>Cidade</label><input class="fc" name="loja_cidade" value="{{empresa.loja_cidade or ''}}" placeholder="Curitiba"></div>
+      <div class="fg mb-2"><label>UF</label><input class="fc" name="loja_uf" value="{{empresa.loja_uf or ''}}" placeholder="PR" maxlength="2"></div>
+      <div class="fg mb-3"><label>Impressora padrão</label>
+        <select class="fc" name="impressora">
+          <option value="80mm" {{'selected' if not empresa.impressora or empresa.impressora=='80mm'}}>80mm (padrão)</option>
+          <option value="50mm" {{'selected' if empresa.impressora=='50mm'}}>50mm (compacta)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">💾 Salvar Configurações</button>
+    </form>
+  </div>
+
+  <!-- Informações da conta + plano -->
+  <div>
+    <div class="card mb-3">
+      <div class="card-title">🔑 Conta e Plano</div>
+      <div style="font-size:12px;display:grid;gap:8px">
+        <div><span class="text-muted">Usuário:</span> <strong>{{empresa.usuario}}</strong></div>
+        <div><span class="text-muted">Plano:</span>
+          {% if empresa.plano=='ativo' %}<span class="badge badge-green">Ativo</span>
+          {% elif empresa.plano=='trial' %}<span class="badge badge-yellow">Trial</span>
+          {% else %}<span class="badge badge-red">Expirado</span>{% endif %}
+        </div>
+        {% if empresa.plano_valido_ate %}
+        <div><span class="text-muted">Válido até:</span> {{empresa.plano_valido_ate.strftime('%d/%m/%Y %H:%M')}}</div>
+        {% endif %}
+        <div><span class="text-muted">Cadastro:</span> {{empresa.criado_em.strftime('%d/%m/%Y') if empresa.criado_em else '—'}}</div>
+      </div>
+      {% if empresa.plano != 'ativo' %}
+      <div class="divider"></div>
+      <a href="/assinar" class="btn btn-primary w-full">📱 Assinar / Renovar agora</a>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-title">🖨️ Teste de Impressão</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Escolha o tamanho e imprima uma página de teste para calibrar sua impressora.</p>
+      <div style="display:flex;gap:8px">
+        <a href="/os/imprimir/1?l=80mm" target="_blank" class="btn btn-secondary">🖨️ Teste 80mm</a>
+        <a href="/os/imprimir/1?l=50mm" target="_blank" class="btn btn-secondary">🖨️ Teste 50mm</a>
+      </div>
+      <div class="divider"></div>
+      <p style="font-size:11px;color:var(--text3)">
+        ⚡ Para impressoras <strong>Elgin i9 / Bematech / Daruma / Epson TM-T20</strong> use 80mm.<br>
+        Para impressoras de recibo menores use 50mm.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

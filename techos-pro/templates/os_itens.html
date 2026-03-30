@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}— OS #{{os.numero}}{% endblock %}
+{% block page_title %}🔧 OS #{{os.numero}} — {{os.aparelho}}{% endblock %}
+{% block topbar_actions %}
+<a href="/os/editar/{{os.id}}" class="btn btn-secondary btn-sm">✏️ Editar OS</a>
+<a href="/os/imprimir/{{os.id}}" target="_blank" class="btn btn-secondary btn-sm">🖨️ Imprimir</a>
+{% endblock %}
+{% block content %}
+
+<!-- Info OS -->
+<div class="grid-2 mb-3">
+  <div class="card">
+    <div class="card-title">📋 Detalhes da OS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+      <div><span class="text-muted">Cliente:</span> <strong>{{os.cliente or '—'}}</strong></div>
+      <div><span class="text-muted">Aparelho:</span> <strong>{{os.aparelho}}</strong></div>
+      <div><span class="text-muted">IMEI:</span> {{os.imei or '—'}}</div>
+      <div><span class="text-muted">Senha:</span> {{os.senha_apar or '—'}}</div>
+      <div><span class="text-muted">Defeito:</span> {{os.defeito or '—'}}</div>
+      <div><span class="text-muted">Técnico:</span> {{os.tecnico or '—'}}</div>
+      <div><span class="text-muted">Prazo:</span> {{os.data_prazo.strftime('%d/%m/%Y') if os.data_prazo else '—'}}</div>
+      <div><span class="text-muted">Acessórios:</span> {{os.acessorios or '—'}}</div>
+      <div><span class="text-muted">Status:</span>
+        {% set s=os.status %}
+        {% if s=='Pronto' %}<span class="badge badge-green">{{s}}</span>
+        {% elif s=='Em Andamento' %}<span class="badge badge-blue">{{s}}</span>
+        {% elif s=='Aguardando' %}<span class="badge badge-yellow">{{s}}</span>
+        {% else %}<span class="badge badge-gray">{{s}}</span>{% endif %}
+      </div>
+      <div><span class="text-muted">Pagamento:</span> {{os.pagto or '—'}} <span class="badge {{'badge-green' if os.pago=='Sim' else 'badge-red'}}">{{os.pago}}</span></div>
+    </div>
+    {% if os.laudo %}<div class="divider"></div><div style="font-size:11px;color:var(--text2)"><strong>Laudo:</strong> {{os.laudo}}</div>{% endif %}
+  </div>
+
+  <!-- Adicionar item -->
+  <div class="card">
+    <div class="card-title">➕ Adicionar Serviço / Peça</div>
+    <form method="post" action="/os/itens/{{os.id}}/add">
+      <div class="fg mb-2">
+        <label>Buscar no estoque</label>
+        <select class="fc" name="estoque_id" id="est-sel" onchange="onEstoque(this)">
+          <option value="">-- Selecionar do estoque --</option>
+          {% for p in estoque %}<option value="{{p.id}}" data-preco="{{p.preco_venda or p.custo}}" data-desc="{{p.descricao}}">{{p.descricao}} ({{p.qtd|int}} un.)</option>{% endfor %}
+        </select>
+      </div>
+      <div class="fg mb-2"><label>Ou descrição manual</label><input class="fc" name="descricao" id="item-desc" placeholder="Ex: Troca de tela, Diagnóstico..."></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fg mb-2"><label>Qtd</label><input class="fc" name="qtd" type="number" step="0.01" value="1" min="0.01"></div>
+        <div class="fg mb-2"><label>Valor Unitário (R$)</label><input class="fc" name="valor_unit" id="item-preco" type="number" step="0.01" placeholder="0,00"></div>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">+ Adicionar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Itens -->
+<div class="card">
+  <div class="card-title">🧾 Itens da OS</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Descrição</th><th>Qtd</th><th>Vlr. Unit.</th><th>Subtotal</th><th>Ação</th></tr></thead>
+      <tbody>
+        {% for i in itens %}
+        <tr>
+          <td>{{i.descricao}}</td>
+          <td>{{i.qtd|int}}</td>
+          <td>{{fmtR(i.valor_unit)}}</td>
+          <td class="text-green"><strong>{{fmtR(i.subtotal)}}</strong></td>
+          <td>
+            <form method="post" action="/os/itens/remover/{{i.id}}/{{os.id}}" onsubmit="return confirm('Remover item?')">
+              <button class="btn btn-danger btn-xs">🗑️</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">Nenhum item adicionado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if itens %}
+  <div style="display:flex;justify-content:flex-end;align-items:center;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+    {% if os.desconto and os.desconto > 0 %}
+    <span style="font-size:13px;color:var(--red)">Desconto: -{{fmtR(os.desconto)}}</span>
+    {% endif %}
+    <span style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green)">Total: {{fmtR(os.total - (os.desconto or 0))}}</span>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function onEstoque(sel){
+  if(sel.value){
+    document.getElementById('item-desc').value = sel.options[sel.selectedIndex].dataset.desc;
+    document.getElementById('item-preco').value = sel.options[sel.selectedIndex].dataset.preco;
+  }
+}
+</script>
+{% endblock %}

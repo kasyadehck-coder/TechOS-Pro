@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}— Clientes{% endblock %}
+{% block page_title %}👥 Clientes{% endblock %}
+{% block topbar_actions %}<a href="/clientes/novo" class="btn btn-primary btn-sm">+ Novo Cliente</a>{% endblock %}
+{% block content %}
+<div class="card">
+  <form method="get" style="display:flex;gap:10px;margin-bottom:14px">
+    <div class="search-bar" style="max-width:340px;flex:1">
+      <span style="color:var(--text3)">🔍</span>
+      <input type="text" name="q" value="{{q}}" placeholder="Buscar nome, telefone...">
+    </div>
+    <button class="btn btn-secondary" type="submit">Buscar</button>
+    {% if q %}<a href="/clientes" class="btn btn-secondary">✕</a>{% endif %}
+  </form>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Nome</th><th>Telefone</th><th>WhatsApp</th><th>CPF/CNPJ</th><th>Cidade</th><th>Tipo</th><th>Ações</th></tr></thead>
+      <tbody>
+        {% for c in clientes %}
+        <tr>
+          <td class="text-muted">{{c.id}}</td>
+          <td><strong>{{c.nome}}</strong></td>
+          <td>{{c.telefone or '—'}}</td>
+          <td>{% if c.whatsapp %}<a href="https://wa.me/55{{c.whatsapp|replace('(','') |replace(')','') |replace(' ','') |replace('-','')}}" target="_blank" style="color:var(--green)">{{c.whatsapp}}</a>{% else %}—{% endif %}</td>
+          <td class="text-muted">{{c.cpfcnpj or '—'}}</td>
+          <td>{{c.cidade or '—'}}</td>
+          <td><span class="badge badge-gray">{{c.tipo or 'PF'}}</span></td>
+          <td>
+            <a href="/clientes/editar/{{c.id}}" class="btn btn-secondary btn-xs">✏️</a>
+            <form method="post" action="/clientes/excluir/{{c.id}}" style="display:inline" onsubmit="return confirm('Excluir cliente?')">
+              <button class="btn btn-danger btn-xs">🗑️</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text3)">Nenhum cliente cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}— {{titulo}}{% endblock %}
+{% block page_title %}🗄️ {{titulo}}{% endblock %}
+{% block content %}
+<div style="max-width:700px">
+  <div class="card">
+    <div class="card-title">{{titulo}}</div>
+    <form method="post">
+      <div class="form-grid">
+        <div class="fg"><label>Descrição *</label><input class="fc" name="descricao" value="{{peca.descricao if peca else ''}}" required placeholder="Ex: Tela iPhone 14 Pro"></div>
+        <div class="fg"><label>Código / SKU</label><input class="fc" name="codigo" value="{{peca.codigo if peca else ''}}" placeholder="PCA-001"></div>
+        <div class="fg">
+          <label>Categoria</label>
+          <select class="fc" name="categoria">
+            <option value="">-- Selecionar --</option>
+            {% for cp in cats_padrao %}
+            <option value="{{cp}}" {{'selected' if peca and peca.categoria==cp}}>{{cp}}</option>
+            {% endfor %}
+            {% for c in cats %}
+            {% if c.nome not in cats_padrao %}
+            <option value="{{c.nome}}" {{'selected' if peca and peca.categoria==c.nome}}>{{c.nome}}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Localização (prateleira)</label><input class="fc" name="localizacao" value="{{peca.localizacao if peca else ''}}" placeholder="A1, Gaveta 3..."></div>
+        <div class="fg"><label>Fornecedor</label><input class="fc" name="fornecedor" value="{{peca.fornecedor if peca else ''}}" placeholder="Nome do fornecedor"></div>
+        <div class="fg"><label>Quantidade em estoque</label><input class="fc" name="qtd" type="number" step="0.01" value="{{peca.qtd if peca else 0}}"></div>
+        <div class="fg"><label>Estoque mínimo</label><input class="fc" name="qtd_min" type="number" step="0.01" value="{{peca.qtd_min if peca else 1}}"></div>
+        <div class="fg"><label>Custo (R$)</label><input class="fc" name="custo" type="number" step="0.01" value="{{peca.custo if peca else ''}}" placeholder="0,00"></div>
+        <div class="fg"><label>Preço de venda (R$)</label><input class="fc" name="preco_venda" type="number" step="0.01" value="{{peca.preco_venda if peca else ''}}" placeholder="0,00"></div>
+      </div>
+      <div class="fg mt-3"><label>Observações</label><textarea class="fc" name="obs" placeholder="Observações...">{{peca.obs if peca else ''}}</textarea></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary">💾 Salvar</button>
+        <a href="/estoque" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

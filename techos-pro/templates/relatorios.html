@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}— Relatórios{% endblock %}
+{% block page_title %}📈 Relatórios{% endblock %}
+{% block content %}
+
+<div class="grid-4 mb-3">
+  <div class="stat" style="--sc:var(--green)"><div class="stat-val text-green">{{rec_total}}</div><div class="stat-lbl">Receita Total</div></div>
+  <div class="stat" style="--sc:var(--red)"><div class="stat-val text-red">{{sai_total}}</div><div class="stat-lbl">Despesas</div></div>
+  <div class="stat" style="--sc:var(--accent)"><div class="stat-val text-accent">{{saldo}}</div><div class="stat-lbl">Lucro</div></div>
+  <div class="stat" style="--sc:var(--orange)"><div class="stat-val" style="color:var(--orange)">{{total_os}}</div><div class="stat-lbl">Total OS</div></div>
+</div>
+
+<div class="grid-2">
+  <!-- Receita mensal -->
+  <div class="card">
+    <div class="card-title">📅 Receita por Mês (6 meses)</div>
+    {% if receita_mensal %}
+    {% set max_val = receita_mensal|max(attribute='total') %}
+    {% for r in receita_mensal %}
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>{{r.mes}}</span><span class="text-green">{{fmtR(r.total)}}</span></div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div style="height:100%;background:linear-gradient(90deg,var(--green),var(--accent));width:{{(r.total/max_val.total*100)|int if max_val.total > 0 else 0}}%;border-radius:3px"></div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}<p class="text-muted" style="font-size:12px">Sem dados.</p>{% endif %}
+  </div>
+
+  <!-- OS por status -->
+  <div class="card">
+    <div class="card-title">🔧 OS por Status</div>
+    {% set sc = {'Aguardando':'yellow','Em Andamento':'blue','Pronto':'green','Entregue':'gray','Cancelado':'red'} %}
+    {% for o in os_por_status %}
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(37,45,56,.4)">
+      <span class="badge badge-{{sc.get(o.status,'gray')}}">{{o.status}}</span>
+      <span style="font-size:12px;flex:1">{{o.n}} OS</span>
+      <div style="width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:{{(o.n/total_os*100)|int if total_os > 0 else 0}}%;background:var(--accent);border-radius:3px"></div>
+      </div>
+    </div>
+    {% else %}<p class="text-muted" style="font-size:12px">Sem OS.</p>{% endfor %}
+  </div>
+
+  <!-- Top peças -->
+  <div class="card">
+    <div class="card-title">🔩 Peças mais usadas em OS</div>
+    {% for p in pecas_mais_usadas %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(37,45,56,.4);font-size:12px">
+      <span>{{loop.index}}. {{p.descricao}}</span>
+      <div style="text-align:right">
+        <div class="text-green">{{fmtR(p.total_valor)}}</div>
+        <div class="text-muted" style="font-size:10px">{{p.total_qtd|int}} un.</div>
+      </div>
+    </div>
+    {% else %}<p class="text-muted" style="font-size:12px">Sem dados.</p>{% endfor %}
+  </div>
+
+  <!-- Acessórios por tipo -->
+  <div class="card">
+    <div class="card-title">📱 Acessórios por Tipo</div>
+    {% for a in acess_por_tipo %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(37,45,56,.4);font-size:12px">
+      <span>{{a.tipo}}</span>
+      <div style="text-align:right">
+        <div class="text-accent">{{a.n}} modelos</div>
+        <div class="text-muted" style="font-size:10px">{{a.total_qtd|int}} un. em estoque</div>
+      </div>
+    </div>
+    {% else %}<p class="text-muted" style="font-size:12px">Sem acessórios.</p>{% endfor %}
+  </div>
+</div>
+
+<div style="margin-top:16px">
+  <div class="card">
+    <div class="card-title">📊 Resumo Geral</div>
+    <div class="grid-4">
+      <div style="text-align:center;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)">{{total_cli}}</div>
+        <div style="font-size:11px;color:var(--text3)">Clientes</div>
+      </div>
+      <div style="text-align:center;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--orange)">{{total_os}}</div>
+        <div style="font-size:11px;color:var(--text3)">OS Total</div>
+      </div>
+      <div style="text-align:center;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--green)">{{ticket}}</div>
+        <div style="font-size:11px;color:var(--text3)">Ticket Médio OS</div>
+      </div>
+      <div style="text-align:center;padding:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--yellow)">{{saldo}}</div>
+        <div style="font-size:11px;color:var(--text3)">Lucro Líquido</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

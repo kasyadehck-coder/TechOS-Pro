@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}— Encomendas{% endblock %}
+{% block page_title %}📦 Encomendas{% endblock %}
+{% block topbar_actions %}<a href="/encomendas/nova" class="btn btn-primary btn-sm">+ Nova Encomenda</a>{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Entrada</th><th>Saldo</th><th>Pgto Entrada</th><th>Pgto Saldo</th><th>Prazo</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody>
+        {% for e in encomendas %}
+        {% set saldo = (e.total or 0) - (e.entrada or 0) %}
+        {% set sc = {'aguardando':'yellow','pedido':'blue','transito':'orange','chegou':'green','entregue':'gray'} %}
+        {% set sl = {'aguardando':'Aguardando','pedido':'Pedido Feito','transito':'Em Trânsito','chegou':'Chegou','entregue':'Entregue'} %}
+        <tr>
+          <td class="text-muted">{{e.id}}</td>
+          <td><strong>{{e.cli_nome or e.cliente}}</strong></td>
+          <td>{{e.produto}}</td>
+          <td class="text-green"><strong>{{fmtR(e.total)}}</strong></td>
+          <td class="text-accent">{{fmtR(e.entrada)}}</td>
+          <td class="text-red"><strong>{{fmtR(saldo)}}</strong></td>
+          <td class="text-muted">{{e.fpgto_entrada or '—'}}</td>
+          <td class="text-muted">{{e.fpgto_saldo or '—'}}</td>
+          <td>{{e.data_prazo.strftime('%d/%m/%y') if e.data_prazo else '—'}}</td>
+          <td><span class="badge badge-{{sc.get(e.status,'gray')}}">{{sl.get(e.status, e.status)}}</span></td>
+          <td>
+            <a href="/encomendas/editar/{{e.id}}" class="btn btn-secondary btn-xs">✏️</a>
+            <form method="post" action="/encomendas/excluir/{{e.id}}" style="display:inline" onsubmit="return confirm('Excluir?')">
+              <button class="btn btn-danger btn-xs">🗑️</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text3)">Nenhuma encomenda cadastrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

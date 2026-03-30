@@ -1,0 +1,199 @@
+<!-- ============================================================
+  ARQUIVO: templates/base.html
+  Layout base do TechOS Pro — Dark Industrial
+============================================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⚡ TechOS Pro {% block title %}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0c0f;--bg2:#0f1215;--bg3:#141820;--panel:#181d24;--panel2:#1e2530;
+  --border:#252d38;--border2:#2e3a48;
+  --accent:#00d4ff;--accent2:#0099cc;
+  --green:#00e676;--orange:#ff8c00;--red:#ff3d5a;--yellow:#ffd600;
+  --text:#e8edf5;--text2:#8a97a8;--text3:#4a5568;
+  --r:10px;
+}
+html,body{height:100%;font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text)}
+a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent2)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.layout{display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.logo-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent)}
+.logo-sub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.nav-section{padding:12px 12px 4px;font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--text2);transition:.15s}
+.nav-item:hover{background:var(--panel);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,212,255,.04));color:var(--accent);border:1px solid rgba(0,212,255,.15)}
+.nav-item .ico{font-size:15px;width:20px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.lic-badge{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;font-size:10px}
+.lic-days{font-size:22px;font-weight:700;font-family:'Syne',sans-serif;color:var(--green)}
+.lic-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.lic-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--accent))}
+/* MAIN */
+.main-wrap{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:54px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:50}
+.page-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;flex:1}
+.content{padding:20px}
+/* ALERTS */
+.alert{padding:10px 16px;border-radius:8px;margin-bottom:14px;font-size:12px;display:flex;align-items:center;gap:8px}
+.alert-success{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);color:var(--green)}
+.alert-danger{background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.25);color:var(--red)}
+.alert-info{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent)}
+.alert-warning{background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.25);color:var(--orange)}
+/* TRIAL BANNER */
+.trial-banner{background:linear-gradient(135deg,rgba(255,140,0,.15),rgba(255,61,90,.1));border:1px solid rgba(255,140,0,.3);border-radius:8px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;font-size:12px}
+/* CARDS */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* STAT */
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--sc,var(--accent))}
+.stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 12px;color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:500;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid rgba(37,45,56,.4);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.badge-green{background:rgba(0,230,118,.1);color:var(--green)}.badge-green::before{background:var(--green)}
+.badge-orange{background:rgba(255,140,0,.1);color:var(--orange)}.badge-orange::before{background:var(--orange)}
+.badge-red{background:rgba(255,61,90,.1);color:var(--red)}.badge-red::before{background:var(--red)}
+.badge-blue{background:rgba(0,212,255,.1);color:var(--accent)}.badge-blue::before{background:var(--accent)}
+.badge-yellow{background:rgba(255,214,0,.1);color:var(--yellow)}.badge-yellow::before{background:var(--yellow)}
+.badge-gray{background:rgba(138,151,168,.1);color:var(--text2)}.badge-gray::before{background:var(--text2)}
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.fc{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;transition:.15s;width:100%}
+.fc:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.1)}
+.fc::placeholder{color:var(--text3)}
+select.fc option{background:var(--bg3)}
+textarea.fc{resize:vertical;min-height:70px}
+/* BTNS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:500;transition:.15s;text-decoration:none}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border2)}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(255,61,90,.15);color:var(--red);border:1px solid rgba(255,61,90,.3)}.btn-danger:hover{background:rgba(255,61,90,.25)}
+.btn-green{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.25)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-xs{padding:3px 8px;font-size:10px}
+.w-full{width:100%}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.text-green{color:var(--green)}.text-red{color:var(--red)}.text-muted{color:var(--text3)}.text-accent{color:var(--accent)}
+.text-right{text-align:right}
+.mt-1{margin-top:4px}.mt-2{margin-top:8px}.mt-3{margin-top:14px}.mt-4{margin-top:20px}
+.mb-2{margin-bottom:8px}.mb-3{margin-bottom:14px}
+.flex{display:flex}.flex-center{align-items:center}.gap-2{gap:8px}.gap-3{gap:12px}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;flex:1;max-width:320px}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;width:100%}
+.search-bar input::placeholder{color:var(--text3)}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .main-wrap{margin-left:0}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-title">⚡ TechOS</div>
+      <div class="logo-sub">Sistema Pro v2.0</div>
+    </div>
+
+    <div class="nav-section">Principal</div>
+    <a class="nav-item {% if request.endpoint=='painel' %}active{% endif %}" href="/painel"><span class="ico">📊</span> Dashboard</a>
+    <a class="nav-item {% if 'cliente' in request.endpoint %}active{% endif %}" href="/clientes"><span class="ico">👥</span> Clientes</a>
+    <a class="nav-item {% if 'os' in request.endpoint %}active{% endif %}" href="/os"><span class="ico">🔧</span> Ordens de Serviço</a>
+
+    <div class="nav-section">Vendas</div>
+    <a class="nav-item {% if request.endpoint=='pdv' %}active{% endif %}" href="/pdv"><span class="ico">🛒</span> PDV / Caixa</a>
+    <a class="nav-item {% if 'venda' in request.endpoint %}active{% endif %}" href="/vendas"><span class="ico">💳</span> Vendas</a>
+    <a class="nav-item {% if 'encomenda' in request.endpoint %}active{% endif %}" href="/encomendas"><span class="ico">📦</span> Encomendas</a>
+
+    <div class="nav-section">Estoque</div>
+    <a class="nav-item {% if request.endpoint=='estoque' or 'estoque' in request.endpoint %}active{% endif %}" href="/estoque"><span class="ico">🗄️</span> Estoque / Peças</a>
+    <a class="nav-item {% if 'acessorio' in request.endpoint %}active{% endif %}" href="/acessorios"><span class="ico">📱</span> Acessórios</a>
+    <a class="nav-item {% if 'categoria' in request.endpoint %}active{% endif %}" href="/categorias"><span class="ico">🏷️</span> Categorias</a>
+
+    <div class="nav-section">Financeiro</div>
+    <a class="nav-item {% if request.endpoint=='financeiro' %}active{% endif %}" href="/financeiro"><span class="ico">💰</span> Financeiro</a>
+    <a class="nav-item {% if request.endpoint=='relatorios' %}active{% endif %}" href="/relatorios"><span class="ico">📈</span> Relatórios</a>
+
+    <div class="nav-section">Config</div>
+    <a class="nav-item {% if request.endpoint=='configuracoes' %}active{% endif %}" href="/configuracoes"><span class="ico">⚙️</span> Configurações</a>
+    <a class="nav-item" href="/logout"><span class="ico">🚪</span> Sair</a>
+
+    <div class="sidebar-footer">
+      <div class="lic-badge">
+        <div class="lic-days" id="lic-days">—</div>
+        <div style="font-size:10px;color:var(--text3)">dias restantes</div>
+        <div class="lic-bar"><div class="lic-fill" id="lic-fill" style="width:50%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="page-title">{% block page_title %}TechOS{% endblock %}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div id="clock" style="font-size:11px;color:var(--text3)"></div>
+        {% block topbar_actions %}{% endblock %}
+      </div>
+    </div>
+    <div class="content">
+      {% with msgs = get_flashed_messages(with_categories=true) %}
+        {% for cat,msg in msgs %}
+          <div class="alert alert-{{cat}}">{{msg}}</div>
+        {% endfor %}
+      {% endwith %}
+      {% if trial_min is defined and trial_min %}
+        <div class="trial-banner">
+          <span>⏱️ Modo Trial — <strong>{{trial_min}} minutos restantes</strong></span>
+          <a href="/assinar" class="btn btn-primary btn-sm">📱 Assinar agora</a>
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<script>
+function tick(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+tick();setInterval(tick,1000);
+// Licença display
+const plano = "{{ plano_status|default('') }}";
+if(plano.startsWith('ativo')){document.getElementById('lic-days').textContent='30';document.getElementById('lic-fill').style.width='100%';}
+else if(plano.startsWith('trial:')){
+  const mins=parseInt(plano.split(':')[1]);
+  document.getElementById('lic-days').textContent=mins+'min';
+  document.getElementById('lic-fill').style.width=Math.round(mins/60*100)+'%';
+  document.getElementById('lic-fill').style.background='var(--orange)';
+  document.getElementById('lic-days').style.color='var(--orange)';
+}
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

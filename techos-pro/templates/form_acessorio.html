@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}— {{titulo}}{% endblock %}
+{% block page_title %}📱 {{titulo}}{% endblock %}
+
+{% block extra_head %}
+<style>
+.tipo-section{display:none}
+.tipo-section.show{display:block}
+.marca-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px}
+.marca-chip{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:11px;text-align:center;transition:.15s}
+.marca-chip:hover,.marca-chip.selected{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.05)}
+.subtipo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px}
+.subtipo-chip{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;cursor:pointer;font-size:11px;text-align:center;transition:.15s}
+.subtipo-chip:hover,.subtipo-chip.selected{border-color:var(--yellow);color:var(--yellow);background:rgba(255,214,0,.05)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:780px">
+  <div class="card">
+    <div class="card-title">📱 {{titulo}}</div>
+    <form method="post">
+
+      <!-- TIPO PRINCIPAL -->
+      <div class="fg mb-3">
+        <label>Tipo de Acessório *</label>
+        <select name="tipo" id="tipo-sel" class="fc" onchange="onTipo(this.value)" required>
+          <option value="">-- Selecionar --</option>
+          {% for t in tipos %}
+          <option value="{{t}}" {{'selected' if item and item.tipo==t}}>{{t}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- SUBTIPO PELÍCULA -->
+      <div class="tipo-section" id="sec-pelicula">
+        <div class="fg mb-3">
+          <label>Tipo de Película</label>
+          <div class="subtipo-grid" id="subgrid-pel">
+            {% for s in subtipos_pelicula %}
+            <div class="subtipo-chip" onclick="selSubtipo('{{s}}','subgrid-pel')" data-val="{{s}}"
+                 style="{% if item and item.subtipo==s %}border-color:var(--yellow);color:var(--yellow){% endif %}">{{s}}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTIPO CAPINHA -->
+      <div class="tipo-section" id="sec-capinha">
+        <div class="fg mb-3">
+          <label>Tipo de Capinha</label>
+          <div class="subtipo-grid" id="subgrid-cap" style="--chip-color:var(--orange)">
+            {% for s in subtipos_capinha %}
+            <div class="subtipo-chip" onclick="selSubtipo('{{s}}','subgrid-cap')" data-val="{{s}}"
+                 style="{% if item and item.subtipo==s %}border-color:var(--orange);color:var(--orange){% endif %}">{{s}}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Campo hidden subtipo -->
+      <input type="hidden" name="subtipo" id="subtipo-hidden" value="{{item.subtipo if item else ''}}">
+
+      <!-- MARCA DO APARELHO -->
+      <div class="fg mb-3">
+        <label>Marca do Aparelho *</label>
+        <div class="marca-grid">
+          {% for m in marcas %}
+          <div class="marca-chip" onclick="selMarca('{{m}}')" data-val="{{m}}"
+               style="{% if item and item.marca_aparelho==m %}border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.05){% endif %}">
+            {{m}}
+          </div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="marca_aparelho" id="marca-hidden" value="{{item.marca_aparelho if item else ''}}">
+        <input class="fc mt-2" name="_marca_manual" id="marca-manual" placeholder="Ou digitar marca manualmente..."
+               style="display:none">
+      </div>
+
+      <!-- MODELO DO APARELHO -->
+      <div class="fg mb-3">
+        <label>Modelo do Aparelho</label>
+        <input class="fc" name="modelo_aparelho" id="modelo-inp"
+               value="{{item.modelo_aparelho if item else ''}}"
+               placeholder="Ex: Galaxy S24, iPhone 15 Pro, Moto G84...">
+        <div id="modelo-sugest" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+      </div>
+
+      <!-- DETALHES -->
+      <div class="form-grid">
+        <div class="fg"><label>Código / SKU</label>
+          <input class="fc" name="codigo" value="{{item.codigo if item else ''}}" placeholder="PEL-001">
+        </div>
+        <div class="fg"><label>Cor / Variante</label>
+          <input class="fc" name="cor" value="{{item.cor if item else ''}}" placeholder="Preto, Transparente...">
+        </div>
+        <div class="fg"><label>Custo (R$)</label>
+          <input class="fc" name="custo" type="number" step="0.01" value="{{item.custo if item else ''}}" placeholder="0,00">
+        </div>
+        <div class="fg"><label>Preço de Venda (R$)</label>
+          <input class="fc" name="preco_venda" type="number" step="0.01" value="{{item.preco_venda if item else ''}}" placeholder="0,00">
+        </div>
+        <div class="fg"><label>Quantidade em Estoque</label>
+          <input class="fc" name="qtd" type="number" value="{{item.qtd|int if item else 0}}">
+        </div>
+        <div class="fg"><label>Estoque Mínimo</label>
+          <input class="fc" name="qtd_min" type="number" value="{{item.qtd_min|int if item else 1}}">
+        </div>
+        <div class="fg"><label>Fornecedor</label>
+          <input class="fc" name="fornecedor" value="{{item.fornecedor if item else ''}}" placeholder="Nome do fornecedor">
+        </div>
+      </div>
+
+      <div class="fg mt-3"><label>Descrição / Observações</label>
+        <textarea class="fc" name="descricao" placeholder="Descrição adicional, especificações...">{{item.descricao if item else ''}}</textarea>
+      </div>
+      <div class="fg mt-2"><label>Observações internas</label>
+        <input class="fc" name="obs" value="{{item.obs if item else ''}}" placeholder="Notas internas...">
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary">💾 Salvar Acessório</button>
+        <a href="/acessorios" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Modelos sugeridos por marca
+const MODELOS = {
+  'Samsung':['Galaxy S24','Galaxy S24 Ultra','Galaxy S23','Galaxy A54','Galaxy A34','Galaxy A14','Galaxy A55','Galaxy M14','Galaxy S22','Galaxy S21','Galaxy A73','Galaxy A53'],
+  'iPhone (Apple)':['iPhone 16','iPhone 16 Pro','iPhone 16 Pro Max','iPhone 15','iPhone 15 Pro','iPhone 15 Pro Max','iPhone 14','iPhone 14 Pro','iPhone 13','iPhone 12','iPhone 11','iPhone SE 3'],
+  'Motorola':['Moto G84','Moto G54','Moto G34','Moto G04','Edge 40','Edge 30','Moto G73','Moto G72','Moto G52','Moto G32','Moto G62'],
+  'Xiaomi':['Xiaomi 13','Xiaomi 14','Redmi Note 13','Redmi Note 12','Redmi 12','Redmi 12C','Poco X6','Poco M6 Pro','Poco F5'],
+  'Redmi':['Redmi Note 13','Redmi Note 12','Redmi 12','Redmi 12C','Redmi 10C','Redmi 13C'],
+  'POCO':['Poco X6 Pro','Poco X6','Poco M6 Pro','Poco F5','Poco C65'],
+  'Realme':['Realme 11','Realme C55','Realme C51','Realme 10 Pro'],
+};
+
+function onTipo(v){
+  document.querySelectorAll('.tipo-section').forEach(s=>s.classList.remove('show'));
+  if(v==='Película'||v==='Película + Capinha') document.getElementById('sec-pelicula').classList.add('show');
+  if(v==='Capinha'||v==='Capa Emborrachada') document.getElementById('sec-capinha').classList.add('show');
+}
+
+function selSubtipo(val, gridId){
+  document.querySelectorAll('#'+gridId+' .subtipo-chip').forEach(c=>{
+    c.style.borderColor=''; c.style.color='';
+    c.style.background='';
+  });
+  const chip = document.querySelector('#'+gridId+' [data-val="'+val+'"]');
+  if(chip){
+    chip.style.borderColor='var(--yellow)';chip.style.color='var(--yellow)';
+    chip.style.background='rgba(255,214,0,.06)';
+  }
+  document.getElementById('subtipo-hidden').value = val;
+}
+
+function selMarca(val){
+  document.querySelectorAll('.marca-chip').forEach(c=>{
+    c.style.borderColor=''; c.style.color=''; c.style.background='';
+  });
+  if(val==='Outra'){
+    document.getElementById('marca-manual').style.display='block';
+    document.getElementById('marca-manual').focus();
+    document.getElementById('marca-hidden').value='';
+    return;
+  }
+  const chip = document.querySelector('.marca-chip[data-val="'+val+'"]');
+  if(chip){chip.style.borderColor='var(--accent)';chip.style.color='var(--accent)';chip.style.background='rgba(0,212,255,.05)';}
+  document.getElementById('marca-hidden').value = val;
+  document.getElementById('marca-manual').style.display='none';
+  showModelos(val);
+}
+
+function showModelos(marca){
+  const mods = MODELOS[marca] || [];
+  const div = document.getElementById('modelo-sugest');
+  div.innerHTML = mods.map(m=>`<span onclick="selModelo('${m}')" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;transition:.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">${m}</span>`).join('');
+}
+
+function selModelo(m){
+  document.getElementById('modelo-inp').value = m;
+}
+
+document.getElementById('marca-manual').addEventListener('input',function(){
+  document.getElementById('marca-hidden').value = this.value;
+});
+
+// Init
+const tipoAtual = document.getElementById('tipo-sel').value;
+if(tipoAtual) onTipo(tipoAtual);
+const marcaAtual = document.getElementById('marca-hidden').value;
+if(marcaAtual && marcaAtual!=='Outra') showModelos(marcaAtual);
+</script>
+{% endblock %}

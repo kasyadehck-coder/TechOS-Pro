@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}— {{titulo}}{% endblock %}
+{% block page_title %}🔧 {{titulo}}{% endblock %}
+{% block content %}
+<div style="max-width:800px">
+  <div class="card">
+    <div class="card-title">{{titulo}}</div>
+    <form method="post">
+      <div class="form-grid">
+        <div class="fg">
+          <label>Cliente</label>
+          <select class="fc" name="cliente_id" id="cli-sel" onchange="onClient(this)">
+            <option value="">-- Selecionar ou digitar abaixo --</option>
+            {% for c in clientes %}<option value="{{c.id}}" {{'selected' if os and os.cliente_id==c.id}}>{{c.nome}}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Ou nome do cliente (avulso)</label><input class="fc" name="cliente" id="cli-nome" value="{{os.cliente if os else ''}}" placeholder="Nome do cliente"></div>
+        <div class="fg"><label>Aparelho *</label><input class="fc" name="aparelho" value="{{os.aparelho if os else ''}}" required placeholder="iPhone 14 Pro, Samsung A54..."></div>
+        <div class="fg"><label>IMEI / Serial</label><input class="fc" name="imei" value="{{os.imei if os else ''}}" placeholder="359999012345678"></div>
+        <div class="fg"><label>Defeito relatado *</label><input class="fc" name="defeito" value="{{os.defeito if os else ''}}" required placeholder="Tela quebrada, não liga..."></div>
+        <div class="fg"><label>Senha / Padrão</label><input class="fc" name="senha_apar" value="{{os.senha_apar if os else ''}}" placeholder="1234 ou padrão"></div>
+        <div class="fg"><label>Técnico responsável</label><input class="fc" name="tecnico" value="{{os.tecnico if os else ''}}" placeholder="Nome do técnico"></div>
+        <div class="fg"><label>Data de abertura</label><input class="fc" name="data_abert" type="date" value="{{os.data_abert.isoformat() if os and os.data_abert else hoje}}"></div>
+        <div class="fg"><label>Prazo de entrega</label><input class="fc" name="data_prazo" type="date" value="{{os.data_prazo.isoformat() if os and os.data_prazo else ''}}"></div>
+        <div class="fg"><label>Status</label>
+          <select class="fc" name="status">
+            {% for s in ['Aguardando','Em Andamento','Pronto','Entregue','Cancelado'] %}
+            <option {{'selected' if os and os.status==s}}>{{s}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Pagamento</label>
+          <select class="fc" name="pagto">
+            {% for p in ['','Dinheiro','Pix','Cartão Crédito','Cartão Débito','Transferência'] %}
+            <option value="{{p}}" {{'selected' if os and os.pagto==p}}>{{p or 'A definir'}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fg"><label>Pago?</label>
+          <select class="fc" name="pago">
+            <option {{'selected' if not os or os.pago=='Não'}}>Não</option>
+            <option {{'selected' if os and os.pago=='Sim'}}>Sim</option>
+          </select>
+        </div>
+        <div class="fg"><label>Desconto (R$)</label><input class="fc" name="desconto" type="number" step="0.01" value="{{os.desconto if os else '0'}}" placeholder="0,00"></div>
+        <div class="fg"><label>Acessórios entregues</label><input class="fc" name="acessorios" value="{{os.acessorios if os else ''}}" placeholder="Carregador, capa, caixa..."></div>
+      </div>
+      <div class="fg mt-3"><label>Laudo técnico / Diagnóstico</label><textarea class="fc" name="laudo" placeholder="Resultado do diagnóstico, peças necessárias...">{{os.laudo if os else ''}}</textarea></div>
+      <div class="fg mt-2"><label>Observações</label><textarea class="fc" name="obs" placeholder="Observações adicionais...">{{os.obs if os else ''}}</textarea></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary">💾 Salvar OS</button>
+        <a href="/os" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function onClient(sel){
+  if(sel.value){
+    document.getElementById('cli-nome').value = sel.options[sel.selectedIndex].text;
+  }
+}
+</script>
+{% endblock %}
